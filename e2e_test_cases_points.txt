@@ -1,0 +1,47 @@
+End-to-End Test Cases for Mutual Fund Portal
+
+1. User Registration - Valid Data
+   - Navigate to the registration form.
+   - Enter a valid email and password.
+   - Click Register.
+   - Expected Result: User should be registered and redirected to the login screen with success message.
+
+2. User Registration - Duplicate Email
+   - Attempt to register with an email that is already registered.
+   - Expected Result: Registration should fail with message "User already exists" or appropriate error.
+
+3. Login - Valid Credentials
+   - Enter valid registered email and password.
+   - Click Login.
+   - Expected Result: User should be logged in and redirected to fund selection section.
+
+4. Login - Invalid Credentials
+   - Enter an incorrect email or password.
+   - Click Login.
+   - Expected Result: Message "Invalid username or password" should be displayed.
+
+5. Load Funds - Valid Token
+   - Login with valid credentials.
+   - Select a fund house and click "Load Funds".
+   - Expected Result: Should navigate to /dashboard and show mutual fund table.
+
+6. Load Funds - No Token
+   - Without logging in, directly try to access /dashboard.
+   - Expected Result: Access denied, should redirect to login or show authentication error.
+
+7. Dashboard Data Integrity
+   - After selecting a valid fund, check if the dashboard shows a table with correct columns:
+     - RTA AGENT CODE
+     - AMC SCHEME CODE
+     - MINIMUM PURCHASE AMOUNT
+
+9. MongoDB Connection
+   - Ensure MongoDB is running.
+   - Start backend server.
+   - Expected Result: Server should successfully connect to MongoDB without errors.
+
+10. Environment Variable Handling
+    - Remove or modify RAPIDAPI_KEY or RAPIDAPI_HOST in .env file.
+    - Start backend server.
+    - Expected Result: Server should raise meaningful error indicating missing/invalid credentials.
+
