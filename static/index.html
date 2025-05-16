@@ -88,7 +88,6 @@
 
     <!-- Funds Section -->
     <div id="funds-section" style="display:none;">
-      <h2>Open Ended Funds</h2>
       <label for="fund-house"><strong>Select Fund Family:</strong></label>
       <select id="fund-house">
         <option value="CAMS">CAMS</option>
@@ -134,38 +133,40 @@
     }
 
     async function login() {
-      const username = document.getElementById("login-username").value;
-      const password = document.getElementById("login-password").value;
+    const username = document.getElementById("login-username").value;
+    const password = document.getElementById("login-password").value;
 
-      const response = await fetch('/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email: username, password })
-      });
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: username, password })
+    });
 
-      if (response.ok) {
-        document.getElementById("login-message").innerText = "Login successful!";
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("funds-section").style.display = "block";
-      } else {
-        const err = await response.json();
-        document.getElementById("login-message").innerText = "Login failed: " + (err.detail || '');
-      }
-    }
-
-    async function loadFunds() {
-      const fundHouse = document.getElementById("fund-house").value;
-      const response = await fetch(`/funds?rta_agent_code=${encodeURIComponent(fundHouse)}`);
+    if (response.ok) {
       const data = await response.json();
-
-      const list = document.getElementById("funds-list");
-      list.innerHTML = "";
-      data.forEach(fund => {
-        const li = document.createElement("li");
-        li.textContent = fund.name || JSON.stringify(fund);
-        list.appendChild(li);
-      });
+      localStorage.setItem("access_token", data.access_token);
+      document.getElementById("login-message").innerText = "Login successful!";
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("funds-section").style.display = "block";
+    } else {
+      const err = await response.json();
+      document.getElementById("login-message").innerText = "Login failed: " + (err.detail || '');
     }
+  }
+
+    function loadFunds() {
+    const fundHouse = document.getElementById("fund-house").value;
+    // You might still want to check if user is logged in by token presence
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      alert("Please login first.");
+      return;
+    }
+
+    // Directly go to dashboard with the fundHouse param
+    window.location.href = `/dashboard?rta_agent_code=${encodeURIComponent(fundHouse)}`;
+  }
+
 
     window.onload = () => {
       showLogin();
