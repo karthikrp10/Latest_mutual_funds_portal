@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mutual Fund Portal</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('static/barebull.png');
+      background-size: cover;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      box-sizing: border-box;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 12px;
+      margin-top: 10px;
+      width: 100%;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p a {
+      color: #007bff;
+      cursor: pointer;
+    }
+
+    ul {
+      text-align: left;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mutual Fund Portal</h1>
+
+    <!-- Login Section -->
+    <div id="login-section">
+      <h2>Login</h2>
+      <input type="text" id="login-username" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <p id="login-message"></p>
+      <p>Don't have an account? <a onclick="showRegister()">Register Me</a></p>
+    </div>
+
+    <!-- Register Section -->
+    <div id="register-section" style="display:none;">
+      <h2>Register</h2>
+      <input type="text" id="email" placeholder="Enter Email ID">
+      <input type="password" id="password" placeholder="Enter Password">
+      <button onclick="register()">Register</button>
+      <p id="register-message"></p>
+    </div>
+
+    <!-- Funds Section -->
+    <div id="funds-section" style="display:none;">
+      <h2>Open Ended Funds</h2>
+      <label for="fund-house"><strong>Select Fund Family:</strong></label>
+      <select id="fund-house">
+        <option value="CAMS">CAMS</option>
+        <option value="KARVY">KARVY</option>
+      </select>
+      <button onclick="loadFunds()">Load Funds</button>
+      <ul id="funds-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    function showLogin() {
+      document.getElementById("register-section").style.display = "none";
+      document.getElementById("login-section").style.display = "block";
+      document.getElementById("funds-section").style.display = "none";
+    }
+
+    function showRegister() {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("register-section").style.display = "block";
+      document.getElementById("funds-section").style.display = "none";
+    }
+
+    async function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        document.getElementById("register-message").innerText = "Registration successful!";
+        setTimeout(() => {
+          showLogin();
+        }, 1000);
+      } else {
+        const err = await response.json();
+        document.getElementById("register-message").innerText = "Registration failed: " + (err.detail || '');
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById("login-username").value;
+      const password = document.getElementById("login-password").value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email: username, password })
+      });
+
+      if (response.ok) {
+        document.getElementById("login-message").innerText = "Login successful!";
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("funds-section").style.display = "block";
+      } else {
+        const err = await response.json();
+        document.getElementById("login-message").innerText = "Login failed: " + (err.detail || '');
+      }
+    }
+
+    async function loadFunds() {
+      const fundHouse = document.getElementById("fund-house").value;
+      const response = await fetch(`/funds?rta_agent_code=${encodeURIComponent(fundHouse)}`);
+      const data = await response.json();
+
+      const list = document.getElementById("funds-list");
+      list.innerHTML = "";
+      data.forEach(fund => {
+        const li = document.createElement("li");
+        li.textContent = fund.name || JSON.stringify(fund);
+        list.appendChild(li);
+      });
+    }
+
+    window.onload = () => {
+      showLogin();
+    };
+  </script>
+</body>
+</html>
