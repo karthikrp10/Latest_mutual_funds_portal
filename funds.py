@@ -1,11 +1,12 @@
 import traceback
 import aiohttp
 import os
-from fastapi import APIRouter, HTTPException,Request
+from fastapi import APIRouter, HTTPException,Request, Depends
 from dotenv import load_dotenv
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import pandas as pd
+from auth import get_current_user
 
 router = APIRouter()
 load_dotenv()
@@ -21,11 +22,12 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request, rta_agent_code: str):
+async def dashboard(request: Request, rta_agent_code: str, user=Depends(get_current_user)):
     try:
+        if user.get("exception"):
+            return {"message": "Invalid Token"}
         df = await get_portfolio_df(rta_agent_code)
         table_html = df.to_html(classes="dataframe", index=False)
-
         return templates.TemplateResponse("dashboard.html", {"request": request,
                                                              "table": table_html,
                                                              "rta_agent_code": rta_agent_code})
